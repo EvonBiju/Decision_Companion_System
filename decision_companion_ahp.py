@@ -1,39 +1,56 @@
 import numpy as np
 
-# Random Index values
 RI = {
     1: 0.00, 2: 0.00, 3: 0.58, 4: 0.90, 5: 1.12,
     6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49
 }
 
-# Function to build pairwise comparison matrix
+
+def get_valid_number(prompt):
+    while True:
+        try:
+            value = float(input(prompt))
+            if value <= 0:
+                print("Value must be positive.")
+                continue
+            return value
+        except:
+            print("Invalid input. Enter a numeric value.")
+
+
 def build_matrix(items, title):
     n = len(items)
     matrix = np.ones((n, n))
 
-    print("\nPairwise comparison for", title)
-    print("Use scale 1-9 (if less important, use decimal like 0.33)\n")
+    print(f"\n=== Pairwise Comparison: {title} ===")
+    print("Saaty Scale Guide:")
+    print("1 = Equal importance")
+    print("3 = Moderate importance")
+    print("5 = Strong importance")
+    print("7 = Very strong importance")
+    print("9 = Extreme importance")
+    print("Use decimals (e.g., 0.33) for less importance.\n")
 
     for i in range(n):
         for j in range(i + 1, n):
-            value = float(input(f"How much is '{items[i]}' preferred over '{items[j]}'? "))
+            value = get_valid_number(
+                f"How much is '{items[i]}' preferred over '{items[j]}'? "
+            )
             matrix[i][j] = value
             matrix[j][i] = 1 / value
 
     return matrix
 
 
-# Function to calculate weights using eigenvector method
 def calculate_weights(matrix):
     eigenvalues, eigenvectors = np.linalg.eig(matrix)
     max_index = np.argmax(eigenvalues.real)
-    max_eigenvalue = eigenvalues.real[max_index]
+    lambda_max = eigenvalues.real[max_index]
     weights = eigenvectors[:, max_index].real
-    weights = weights / sum(weights)
-    return weights, max_eigenvalue
+    weights = weights / np.sum(weights)
+    return weights, lambda_max
 
 
-# Function to calculate consistency ratio
 def consistency_ratio(matrix, lambda_max):
     n = matrix.shape[0]
     if n < 3:
@@ -44,64 +61,74 @@ def consistency_ratio(matrix, lambda_max):
     return CR
 
 
-#MAIN PROGRAM#
+def print_matrix_info(weights, cr, items, title):
+    print(f"\n--- {title} Weights ---")
+    for item, weight in zip(items, weights):
+        print(f"{item}: {weight:.4f}")
 
-print("=== Decision Companion System (AHP - CLI) ===\n")
+    print(f"Consistency Ratio (CR): {cr:.4f}")
+    if cr <= 0.1:
+        print("Consistency Status: Acceptable")
+    else:
+        print("Consistency Status: WARNING (Judgments may be inconsistent)")
+
+
+# ---------------- MAIN PROGRAM ---------------- #
+
+print("========== Decision Companion System (AHP CLI) ==========\n")
 
 decision = input("What decision are you making? ")
 
 num_criteria = int(input("Number of criteria: "))
-criteria = []
-
-for i in range(num_criteria):
-    criteria.append(input(f"Enter criterion {i+1}: "))
+criteria = [input(f"Enter criterion {i+1}: ") for i in range(num_criteria)]
 
 num_alternatives = int(input("Number of alternatives: "))
-alternatives = []
+alternatives = [input(f"Enter alternative {i+1}: ") for i in range(num_alternatives)]
 
-for i in range(num_alternatives):
-    alternatives.append(input(f"Enter alternative {i+1}: "))
-
-# Build criteria matrix
+# Step 1: Criteria Matrix
 criteria_matrix = build_matrix(criteria, "Criteria")
-
 criteria_weights, lambda_max = calculate_weights(criteria_matrix)
-cr = consistency_ratio(criteria_matrix, lambda_max)
+criteria_cr = consistency_ratio(criteria_matrix, lambda_max)
 
-if cr > 0.1:
-    print("\nWarning: Criteria matrix may be inconsistent (CR =", round(cr, 3), ")")
+print_matrix_info(criteria_weights, criteria_cr, criteria, "Criteria")
 
-# Build alternative matrices
+# Step 2: Alternative Matrices
 final_scores = np.zeros(num_alternatives)
+detailed_scores = {}
 
 for i in range(num_criteria):
-    print(f"\n--- Evaluating alternatives based on '{criteria[i]}' ---")
-    alt_matrix = build_matrix(alternatives, criteria[i])
+    print(f"\n### Evaluating Alternatives for Criterion: {criteria[i]} ###")
 
+    alt_matrix = build_matrix(alternatives, criteria[i])
     alt_weights, alt_lambda = calculate_weights(alt_matrix)
     alt_cr = consistency_ratio(alt_matrix, alt_lambda)
 
-    if alt_cr > 0.1:
-        print("Warning: Inconsistency detected (CR =", round(alt_cr, 3), ")")
+    print_matrix_info(alt_weights, alt_cr, alternatives, criteria[i])
 
-    final_scores += criteria_weights[i] * alt_weights
+    contribution = criteria_weights[i] * alt_weights
+    detailed_scores[criteria[i]] = contribution
 
-# Print Results
-print("\n====== RESULTS ======\n")
+    final_scores += contribution
 
-print("Criteria Weights:")
-for i in range(num_criteria):
-    print(criteria[i], ":", round(criteria_weights[i], 4))
+# Step 3: Final Results
+print("\n================ FINAL RESULTS ================\n")
 
-print("\nFinal Scores:")
-for i in range(num_alternatives):
-    print(alternatives[i], ":", round(final_scores[i], 4))
+print("Final Scores (Global Priorities):")
+for alt, score in zip(alternatives, final_scores):
+    print(f"{alt}: {score:.4f}")
 
-# Ranking
 ranking = np.argsort(final_scores)[::-1]
 
-print("\nRanking (Best to Worst):")
+print("\nRanking (Best → Worst):")
 for i in ranking:
     print(alternatives[i])
 
-print("\nBest Choice:", alternatives[ranking[0]])
+best_choice = alternatives[ranking[0]]
+print(f"\nRecommended Decision: {best_choice}")
+
+# Step 4: Explanation Breakdown
+print("\n--- Contribution Breakdown ---")
+for criterion in criteria:
+    print(f"\nBased on {criterion}:")
+    for alt, value in zip(alternatives, detailed_scores[criterion]):
+        print(f"{alt} contributed {value:.4f}")
