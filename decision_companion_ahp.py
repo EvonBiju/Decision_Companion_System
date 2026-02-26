@@ -1,5 +1,50 @@
 import numpy as np
+def sensitivity_analysis(criteria_weights, detailed_scores, alternatives):
+    print("\n================ SENSITIVITY ANALYSIS ================\n")
 
+    original_scores = np.zeros(len(alternatives))
+
+    # Calculate original scores again
+    for criterion in detailed_scores:
+        original_scores += detailed_scores[criterion]
+
+    original_ranking = np.argsort(original_scores)[::-1]
+    original_best = alternatives[original_ranking[0]]
+
+    print(f"Original Best Alternative: {original_best}\n")
+
+    for i in range(len(criteria_weights)):
+
+        print(f"--- Testing Sensitivity for Criterion {i+1} ---")
+
+        # Copy weights
+        new_weights = criteria_weights.copy()
+
+        # Increase weight by 10%
+        new_weights[i] = new_weights[i] * 1.10
+
+        # Normalize weights again
+        new_weights = new_weights / np.sum(new_weights)
+
+        # Recalculate final scores
+        new_scores = np.zeros(len(alternatives))
+
+        for j, criterion in enumerate(detailed_scores):
+            # Recalculate contribution using adjusted weight
+            alt_weights = detailed_scores[criterion] / criteria_weights[j]
+            contribution = new_weights[j] * alt_weights
+            new_scores += contribution
+
+        new_ranking = np.argsort(new_scores)[::-1]
+        new_best = alternatives[new_ranking[0]]
+
+        print(f"New Best Alternative after +10% change: {new_best}")
+
+        if new_best == original_best:
+            print("Result: Stable (No change in top alternative)\n")
+        else:
+            print("Result: Changed (Decision is sensitive!)\n")
+            
 RI = {
     1: 0.00, 2: 0.00, 3: 0.58, 4: 0.90, 5: 1.12,
     6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49
@@ -132,3 +177,9 @@ for criterion in criteria:
     print(f"\nBased on {criterion}:")
     for alt, value in zip(alternatives, detailed_scores[criterion]):
         print(f"{alt} contributed {value:.4f}")
+        
+# Step 5: Sensitivity Analysis
+sensitivity_analysis(criteria_weights, detailed_scores, alternatives)
+
+
+
