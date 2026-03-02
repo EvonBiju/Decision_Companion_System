@@ -10,7 +10,7 @@ An Explainable Multi-Criteria Decision Support Framework
 [https://ahp-app-gamma.vercel.app/](https://ahp-app-gamma.vercel.app/)
 
 📂 **GitHub Repository:**  
-[Decision Companion System](https://github.com/EvonBiju/Decision_Companion_System)
+[https://github.com/EvonBiju/Decision_Companion_System](https://github.com/EvonBiju/Decision_Companion_System)
 
 ---
 
