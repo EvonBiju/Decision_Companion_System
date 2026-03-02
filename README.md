@@ -1,5 +1,4 @@
 
----
 
 ```markdown
 # Hybrid AHP Decision Companion System  
