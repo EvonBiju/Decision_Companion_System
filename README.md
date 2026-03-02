@@ -9,11 +9,11 @@ An Explainable Multi-Criteria Decision Support Framework
 
 ## 🌐 Live Application
 
-🔗 **Vercel Deployment:**  
-https://ahp-app-gamma.vercel.app/
+🔗 **Live App:**  
+[https://ahp-app-gamma.vercel.app/](https://ahp-app-gamma.vercel.app/)
 
 📂 **GitHub Repository:**  
-https://github.com/EvonBiju/Decision_Companion_System
+[Decision Companion System](https://github.com/EvonBiju/Decision_Companion_System)
 
 ---
 
@@ -272,7 +272,7 @@ uvicorn main:app --reload
 ### Step 5 — Open in Browser
 
 ```
-http://127.0.0.1:8000
+[http://127.0.0.1:8000](http://127.0.0.1:8000)
 ```
 
 ---
