@@ -12,6 +12,9 @@ An Explainable Multi-Criteria Decision Support Framework
 📂 **GitHub Repository:**  
 [https://github.com/EvonBiju/Decision_Companion_System](https://github.com/EvonBiju/Decision_Companion_System)
 
+**Video Instrution to use the Website: **
+[![Watch the video for confusion in using the website! ](https://img.youtube.com/vi/R2jDLR8hlCE/maxresdefault.jpg)](https://youtu.be/R2jDLR8hlCE)
+
 ---
 
 ## 1. Introduction
