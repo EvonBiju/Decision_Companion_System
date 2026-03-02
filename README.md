@@ -1,6 +1,4 @@
 
-
-```markdown
 # Hybrid AHP Decision Companion System  
 An Explainable Multi-Criteria Decision Support Framework
 
